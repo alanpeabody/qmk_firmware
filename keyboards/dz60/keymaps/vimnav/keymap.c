@@ -10,13 +10,20 @@
 #define _NL NAV_LAYER
 #define _ML MEDIA_LAYER
 #define _CL CONTROLL_LAYER
+// Hold down to access nav/bracket layer tap for space
 #define SPC_FN LT(NAV_LAYER, KC_SPC)
+// Hold down tab to access media layer, tap for tab
 #define TAB_FN LT(MEDIA_LAYER, KC_TAB)
+// Hold down to access controll layer
 #define FN_FN MO(CONTROLL_LAYER)
-
-/* Sockets per row
- * 15, 14, 13, 14, 11
- */
+// Hold down for left controll, tap for escape
+#define CTRL_ESC MT(MOD_LCTL, KC_ESC)
+// Send CTRL-C (copy) w/o moving much
+#define CTRL_C LGUI(KC_C)
+// Send CTRL-V (paste) w/o moving much
+#define CTRL_V LGUI(KC_V)
+// Send CTRL-Tab
+#define CTRL_TAB LGUI(KC_TAB)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   /* Layer 0 - _QL - Qwerty
@@ -25,7 +32,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |-----------------------------------------------------------------------------------------+
    * | TabFn  |  Q  |  W  |  E  |  R  |  T  |  Y  |  U  |  I  |  O  |  P  |  [  |  ]  |    \   |
    * |-----------------------------------------------------------------------------------------+
-   * | Ctrl    |  A  |  S  |  D  |  F  |  G  |  H  |  J  |  K  |  L  |  ;  |  '  |    Enter    |
+   * | Ctrl/Esc|  A  |  S  |  D  |  F  |  G  |  H  |  J  |  K  |  L  |  ;  |  '  |    Enter    |
    * |-----------------------------------------------------------------------------------------+
    * | Shift     |  Z  |  X  |  C  |  V  |  B  |  N  |  M  |  ,  |  .  |  /  |     RShift      |
    * |-----------------------------------------------------------------------------------------+
@@ -33,10 +40,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * `-----------------------------------------------------------------------------------------'
    */
 
+  /* NOTE: ()[]{} on normal keys are disabled for training */
   [QWERTY_LAYER] = KEYMAP(
     KC_ESC, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_MINS, KC_EQL, KC_BSPC, KC_BSPC,
     TAB_FN, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_LBRC, KC_RBRC, KC_BSLS,
-    KC_CAPS, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_ENT,
+    CTRL_ESC, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_ENT,
     KC_LSFT, KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, KC_RSFT,
     KC_LCTL, KC_LALT, KC_LGUI, SPC_FN, SPC_FN, SPC_FN, KC_RGUI, KC_RALT, ______, KC_RCTL, FN_FN
   ),
@@ -49,7 +57,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
    * |-----------------------------------------------------------------------------------------+
    * |         |  (  |  )  |  {  |  }  |     | Lft | Dwn | Up  | Rgt |     |  |  |             |
    * |-----------------------------------------------------------------------------------------+
-   * |           |     |     |     |     | Spc |     |     |     |     |     |                 |
+   * |           |     |     |CTRLC|CTRLV|     |     |     |     |     |     |                 |
    * |-----------------------------------------------------------------------------------------+
    * |      |       |       |                                   |       |       |       |      |
    * `-----------------------------------------------------------------------------------------'
@@ -57,9 +65,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [NAV_LAYER] = KEYMAP(
     KC_GRV, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12, ______, KC_DELETE,
-    ______, ______, ______, KC_LBRC, KC_RBRC, ______, ______, ______, ______, ______, ______, ______, ______, ______,
+    CTRL_TAB, ______, ______, KC_LBRC, KC_RBRC, ______, ______, ______, ______, ______, ______, ______, ______, ______,
     ______, KC_LPRN, KC_RPRN, KC_LCBR, KC_RCBR, ______, KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, ______, ______, ______,
-    ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,
+    ______, ______, ______, CTRL_C, CTRL_V, ______, ______, ______, ______, ______, ______, ______, ______, ______,
     ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______
   ),
 
@@ -103,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [CONTROLL_LAYER] = KEYMAP(
     ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, RESET,
-    ______, RGB_TOG, RGB_MOD, RGB_HUD, RGB_HUI, RGB_SAD, RGB_SAI, RGB_VAI, RGB_VAD, ______, ______, ______, ______, ______,
+    ______, RGB_TOG, RGB_MOD, RGB_HUD, RGB_HUI, RGB_SAD, RGB_SAI, RGB_VAD, RGB_VAI, ______, ______, ______, ______, ______,
     ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,
     ______, ______, ______, BL_TOGG, BL_DEC, BL_INC, BL_STEP, ______, ______, ______, ______, ______, ______, ______,
     ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______
