@@ -1,29 +1,37 @@
 #include "kinesis.h"
 
+// A Kinesis advantage keymap focused on software development with Vim.
+//
+// Features:
+//  * Two variations of the thumb keys, one standard and one trying to move common keys to thumbs.
+//  * "SpaceFn" layer with HJKL arrows and ER,DF,CV for brackets.
+//  * Esc EVERYWHERE I can put it.
+//  * Media controls on QWERT when holding tab.
+//  * Mod Tap modifiers where possible/feasible.
+//  * Caps lock is useless - Ctrl/Esc mod tap instead.
+
 // Layers
 #define STANDARD_QWERTY 0 // Same as standard kinesis mapping, with some minor customizations
-#define STANDARD_NAV 1    // Adds vim nav arrows, brackets on ER, DF, CV
-#define ENHANCED_QWERTY 2 // Changes thumb behavior to experimental multi layer setup to move shift to thumbs
-#define LEFT_THUMB 3      // STANDARD_NAV + right thumb becomes return
-#define RIGHT_THUMB 4     // STANDARD_NAV + left thumb becomes delete
-#define MEDIA 5           // Media controlls
-#define BOARD_CONTROL 6   // Reset, change base layer, etc
+#define ENHANCED_QWERTY 1 // Changes thumb behavior to experimental multi layer setup to move shift to thumbs
+#define STANDARD_NAV 2    // Adds vim nav arrows, brackets on ER, DF, CV
+#define MEDIA 3           // Media controlls
+#define BOARD_CONTROL 4   // Reset, change base layer, etc
 
-// Aliases - Shared
+// Aliases
 #define _______  KC_TRNS
-#define FN_FN    MO(BOARD_CONTROL)    // Hold down to access kb control layer (reset, leds, etc)
+
+// Layer switching
+#define FN_FN    MO(BOARD_CONTROL)    // Hold down to access kb control layer (reset, default layer, etc)
 #define TAB_FN   LT(MEDIA, KC_TAB)    // Hold down to access media layer, tap for tab
-#define CTL_ESC  MT(MOD_LCTL, KC_ESC) // Hold down for left control, tap for escape
 #define GOTOSTD  TO(STANDARD_QWERTY)  // Go to stanard qwerty
 #define GOTOENH  TO(ENHANCED_QWERTY)  // Go to enhanced qwerty
 
-// Aliases - Standard
-#define SPC_FNS  LT(STANDARD_NAV, KC_SPC)  // Hold down to access nav/brackey layer, tap for space
-#define BSPC_FNS LT(STANDARD_NAV, KC_BSPC) // Hold down to access nav/brackey layer, tap for backspace
+// "SpaceFn" style layer access
+#define SPC_FN   LT(STANDARD_NAV, KC_SPC)  // Hold down to access nav/brackey layer, tap for space
+#define BSPC_FN  LT(STANDARD_NAV, KC_BSPC) // Hold down to access nav/brackey layer, tap for backspace
 
-// Aliases - Enhanced
-#define SPC_FNE  LT(SPACE, KC_SPC)    // Hold down to access thumb layer, tap for space
-#define BSPC_FNE LT(BSPACE, KC_BSPC)  // Hold down to access thumb layer, tap for backspace
+// Tap vs Hold aliases.
+#define CTL_ESC  MT(MOD_LCTL, KC_ESC) // Hold down for left control, tap for escape
 #define CMD_ESC  MT(MOD_LGUI, KC_ESC) // Hold down for left command, tap for escape
 #define SHFT_TAB MT(MOD_LSFT, KC_TAB) // Hold down for shift, tap for tab
 
@@ -64,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
                                                                           KC_LGUI , KC_LALT ,
                                                                                     KC_HOME ,
-                                                                BSPC_FNS, KC_DEL  , KC_END  ,
+                                                                BSPC_FN , KC_DEL  , KC_END  ,
 
     KC_F9   , KC_F10  , KC_F11  , KC_F12  , _______ , _______ , _______ , RESET   , FN_FN   ,
                                   KC_6    , KC_7    , KC_8    , KC_9    , KC_0    , KC_MINS ,
@@ -75,9 +83,57 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     KC_RGUI , KC_RCTL ,
     KC_PGUP ,
-    KC_PGDN , KC_ENTER, SPC_FNS
+    KC_PGDN , KC_ENTER, SPC_FN
   ),
 
+  /************************************************************************************************
+  *
+  * Keymap: Enhanced Qwerty - Standard plus different/multi functional thumbs.
+  *
+  * ,-------------------------------------------------------------------------------------------------------------------.
+  * | Esc    |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F8  |  F9  |  F10 |  F12 |      |      |      |      | Fn()   |
+  * |--------+------+------+------+------+------+---------------------------+------+------+------+------+------+--------|
+  * | =+     |  1!  |  2@  |  3#  |  4$  |  5%  |                           |  6^  |  7&  |  8*  |  9(  |  0)  | -_     |
+  * |--------+------+------+------+------+------|                           +------+------+------+------+------+--------|
+  * | TabFn  |   Q  |   W  |   E  |   R  |   T  |                           |   Y  |   U  |   I  |   O  |   P  | \|     |
+  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
+  * | CtrlEsc|   A  |   S  |   D  |   F  |   G  |                           |   H  |   J  |   K  |   L  |  ;:  | '"     |
+  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
+  * | Shift  |   Z  |   X  |   C  |   V  |   B  |                           |   N  |   M  |  ,.  |  .>  |  /?  | Shift  |
+  * `--------+------+------+------+------+-------                           `------+------+------+------+------+--------'
+  *          | `~   | Esc  | Left | Right|                                         | Down |  Up  |  [{  |  ]}  |
+  *          `---------------------------'                                         `---------------------------'
+  *                                        ,-------------.         ,-------------.
+  *                                        |CmdEsc| Alt  |         | Alt  | Ctrl |
+  *                                 ,------|------|------|         |------+------+------.
+  *                                 | BkSp | Shft | Del  |         | Spc  |      | Spc  |
+  *                                 |  /   |  /   |------|         |------| Entr |  /   |
+  *                                 |  Fn  | Tab  | Esc  |         | Esc  |      |  Fn  |
+  *                                 `--------------------'         `--------------------'
+  */
+  [ENHANCED_QWERTY] = KEYMAP(
+    KC_ESC  , KC_F1   , KC_F2   , KC_F3   , KC_F4   , KC_F5   , KC_F6   , KC_F7   , KC_F8   ,
+    KC_EQL  , KC_1    , KC_2    , KC_3    , KC_4    , KC_5    ,
+    TAB_FN  , KC_Q    , KC_W    , KC_E    , KC_R    , KC_T    ,
+    CTL_ESC , KC_A    , KC_S    , KC_D    , KC_F    , KC_G    ,
+    KC_LSFT , KC_Z    , KC_X    , KC_C    , KC_V    , KC_B    ,
+              KC_GRV  , KC_ESC  , KC_LEFT , KC_RGHT ,
+
+                                                                          CMD_ESC , KC_LALT ,
+                                                                                    KC_DEL  ,
+                                                                BSPC_FN , SHFT_TAB, KC_ESC  ,
+
+    KC_F9   , KC_F10  , KC_F11  , KC_F12  , _______ , _______ , _______ , RESET   , FN_FN   ,
+                                  KC_6    , KC_7    , KC_8    , KC_9    , KC_0    , KC_MINS ,
+                                  KC_Y    , KC_U    , KC_I    , KC_O    , KC_P    , KC_BSLS ,
+                                  KC_H    , KC_J    , KC_K    , KC_L    , KC_SCLN , KC_QUOT ,
+                                  KC_N    , KC_M    , KC_COMM , KC_DOT  , KC_SLSH , KC_RSFT ,
+                                            KC_UP   , KC_DOWN , KC_LBRC , KC_RBRC ,
+
+    KC_RALT , KC_RCTL ,
+    KC_SPC  ,
+    KC_ESC  , KC_ENTER, SPC_FN
+  ),
 
   /************************************************************************************************
   *
@@ -129,153 +185,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______ , _______ , _______
   ),
 
-  /************************************************************************************************
-  *
-  * Keymap: Enhanced Qwerty - Standard plus different/multi functional thumbs.
-  *
-  * ,-------------------------------------------------------------------------------------------------------------------.
-  * | Esc    |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F8  |  F9  |  F10 |  F12 |      |      |      |      | Fn()   |
-  * |--------+------+------+------+------+------+---------------------------+------+------+------+------+------+--------|
-  * | =+     |  1!  |  2@  |  3#  |  4$  |  5%  |                           |  6^  |  7&  |  8*  |  9(  |  0)  | -_     |
-  * |--------+------+------+------+------+------|                           +------+------+------+------+------+--------|
-  * | TabFn  |   Q  |   W  |   E  |   R  |   T  |                           |   Y  |   U  |   I  |   O  |   P  | \|     |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * | CtrlEsc|   A  |   S  |   D  |   F  |   G  |                           |   H  |   J  |   K  |   L  |  ;:  | '"     |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * | Shift  |   Z  |   X  |   C  |   V  |   B  |                           |   N  |   M  |  ,.  |  .>  |  /?  | Shift  |
-  * `--------+------+------+------+------+-------                           `------+------+------+------+------+--------'
-  *          | `~   | Esc  | Left | Right|                                         | Down |  Up  |  [{  |  ]}  |
-  *          `---------------------------'                                         `---------------------------'
-  *                                        ,-------------.         ,-------------.
-  *                                        |CmdEsc| Alt  |         | Alt  | Ctrl |
-  *                                 ,------|------|------|         |------+------+------.
-  *                                 |      |      | Bkspc|         | Spc  | Shft | Spc  |
-  *                                 | BkSp |  Fn  |------|         |------|  /   |  /   |
-  *                                 |      |      | Esc  |         | Esc  | Tab  |  Fn  |
-  *                                 `--------------------'         `--------------------'
-  */
-  [ENHANCED_QWERTY] = KEYMAP(
-    KC_ESC  , KC_F1   , KC_F2   , KC_F3   , KC_F4   , KC_F5   , KC_F6   , KC_F7   , KC_F8   ,
-    KC_EQL  , KC_1    , KC_2    , KC_3    , KC_4    , KC_5    ,
-    TAB_FN  , KC_Q    , KC_W    , KC_E    , KC_R    , KC_T    ,
-    CTL_ESC , KC_A    , KC_S    , KC_D    , KC_F    , KC_G    ,
-    KC_LSFT , KC_Z    , KC_X    , KC_C    , KC_V    , KC_B    ,
-              KC_GRV  , KC_ESC  , KC_LEFT , KC_RGHT ,
-
-                                                                          KC_LGUI , KC_LALT ,
-                                                                                    KC_LCTL ,
-                                                                KC_BSPC , KC_DEL  , KC_ESC  ,
-
-    KC_F9   , KC_F10  , KC_F11  , KC_F12  , _______ , _______ , _______ , RESET   , FN_FN   ,
-                                  KC_6    , KC_7    , KC_8    , KC_9    , KC_0    , KC_MINS ,
-                                  KC_Y    , KC_U    , KC_I    , KC_O    , KC_P    , KC_BSLS ,
-                                  KC_H    , KC_J    , KC_K    , KC_L    , KC_SCLN , KC_QUOT ,
-                                  KC_N    , KC_M    , KC_COMM , KC_DOT  , KC_SLSH , KC_RSFT ,
-                                            KC_UP   , KC_DOWN , KC_LBRC , KC_RBRC ,
-
-    KC_RGUI , KC_RCTL ,
-    KC_NO   ,
-    KC_PGDN , KC_ENTER, KC_SPC
-  ),
-
-  /************************************************************************************************
-  *
-  * Keymap: Left thumb layer (Accessed via BackspaceFn)
-  *
-  * ,-------------------------------------------------------------------------------------------------------------------.
-  * |        |      |      |      |      |      |      |      |      |      |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------+---------------------------+------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           +------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * `--------+------+------+------+------+-------                           `------+------+------+------+------+--------'
-  *          |      |      |      |      |                                         |      |      |      |      |
-  *          `---------------------------'                                         `---------------------------'
-  *                                        ,-------------.         ,-------------.
-  *                                        |      |      |         |      |      |
-  *                                 ,------|------|------|         |------+------+------.
-  *                                 |      |      |      |         |      |      |      |
-  *                                 |      |      |------|         |------|      |      |
-  *                                 |      |      |      |         |      |      |      |
-  *                                 `--------------------'         `--------------------'
-  */
-  [LEFT_THUMB] = KEYMAP(
-    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-              _______ , _______ , _______ , _______ ,
-
-                                                                          _______ , _______ ,
-                                                                                    _______ ,
-                                                                _______ , _______ , _______ ,
-
-    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                            _______ , _______ , _______ , _______ ,
-
-    _______ , _______ ,
-    _______ ,
-    _______ , _______ , _______
-  ),
-
-
-  /************************************************************************************************
-  *
-  * Keymap: Right Thumb Layer (Accessed via SpaceFn)
-  *
-  * ,-------------------------------------------------------------------------------------------------------------------.
-  * |        |      |      |      |      |      |      |      |      |      |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------+---------------------------+------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           +------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * |--------+------+------+------+------+------|                           |------+------+------+------+------+--------|
-  * |        |      |      |      |      |      |                           |      |      |      |      |      |        |
-  * `--------+------+------+------+------+-------                           `------+------+------+------+------+--------'
-  *          |      |      |      |      |                                         |      |      |      |      |
-  *          `---------------------------'                                         `---------------------------'
-  *                                        ,-------------.         ,-------------.
-  *                                        |      |      |         |      |      |
-  *                                 ,------|------|------|         |------+------+------.
-  *                                 |      |      |      |         |      |      |      |
-  *                                 |      |      |------|         |------|      |      |
-  *                                 |      |      |      |         |      |      |      |
-  *                                 `--------------------'         `--------------------'
-  */
-  [RIGHT_THUMB] = KEYMAP(
-    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-    _______ , _______ , _______ , _______ , _______ , _______ ,
-              _______ , _______ , _______ , _______ ,
-
-                                                                          _______ , _______ ,
-                                                                                    _______ ,
-                                                                _______ , _______ , _______ ,
-
-    _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                  _______ , _______ , _______ , _______ , _______ , _______ ,
-                                            _______ , _______ , _______ , _______ ,
-
-    _______ , _______ ,
-    _______ ,
-    _______ , _______ , _______
-  ),
 
   /************************************************************************************************
   *
